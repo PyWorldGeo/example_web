@@ -4,6 +4,11 @@ from django.http import HttpResponse
 from .models import Room, Topic
 from .forms import RoomForm
 from django.db.models import Q
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+
+
 # rooms = [
 #     {'id': 1, "name": "Let's learn Python!"},
 #     {'id': 2, "name": "Let's learn Javascript!"},
@@ -76,3 +81,26 @@ def delete_room(request, pk):
         room.delete()
         return redirect('home')
     return render(request, 'base/delete.html', {'obj': room})
+
+
+def login_page(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        try:
+            user = User.objects.get(username=username)
+        except:
+            messages.error(request, "User doesn't exist!")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, "Username or Password doesn't exist!")
+
+    context = {}
+    return render(request, "base/login_register.html", context)
+
+def logout_user(request):
+    logout(request)
+    return redirect('home')
