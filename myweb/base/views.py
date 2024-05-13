@@ -11,19 +11,6 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm
 
-# rooms = [
-#     {'id': 1, "name": "Let's learn Python!"},
-#     {'id': 2, "name": "Let's learn Javascript!"},
-#     {'id': 3, "name": "Let's learn SQL!"}
-# ]
-
-#1 def home(request):
-#     # return HttpResponse("<h1>Home Page<h1>")
-#     return render(request, "home.html", {'rooms': rooms})
-
-#2 def home(request):
-#     context = {'rooms': rooms}
-#     return render(request, "base/home.html", context)
 
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
@@ -78,7 +65,9 @@ def create_room(request):
         # print(request.POST.get('name'))
         form = RoomForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_room = form.save(commit=False) #added
+            new_room.host = request.user
+            new_room.save()
             return redirect('home')
     context = {'form': form}
     return render(request, 'base/room_form.html', context)
@@ -168,3 +157,10 @@ def delete_message(request, pk):
     return render(request, 'base/delete.html', {'obj': message})
 
 
+def user_profile(request, pk):
+    user = User.objects.get(id=pk)
+    rooms = user.room_set.all()
+    room_messages = user.message_set.all()
+    topics = Topic.objects.all()
+    context = {'user': user, 'rooms': rooms, 'room_messages': room_messages, 'topics': topics}
+    return render(request, "base/profile.html", context)
