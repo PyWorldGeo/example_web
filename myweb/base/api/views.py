@@ -13,14 +13,7 @@ def get_rotes(request):
     return Response(routes)
 
 
-# from django.http import JsonResponse
-#def get_rotes(request):
-#     routes = [
-#         "GET /api",
-#         "GET /api/rooms",
-#         "GET /api/rooms/:id"
-#     ]
-#     return JsonResponse(routes, safe=False)
+
 @api_view(["GET"])
 def get_rooms(request):
     rooms = Room.objects.all()
