@@ -13,6 +13,9 @@ from django.http import HttpResponse
 from .forms import MyUserCreationForm
 from django.core.paginator import Paginator
 
+from django.core.mail import send_mail
+from django.conf import settings
+
 
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
@@ -28,6 +31,7 @@ def home(request):
     # room_messages = Message.objects.all()
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
 
+    print("View")
 
     context = {'rooms': rooms, 'topics': topics, 'room_count': room_count, 'room_messages': room_messages, 'page': page}
     return render(request, "base/home.html", context)
@@ -177,7 +181,18 @@ def user_profile(request, pk):
     rooms = user.room_set.all()
     room_messages = user.message_set.all()
     topics = Topic.objects.all()
-    context = {'user': user, 'rooms': rooms, 'room_messages': room_messages, 'topics': topics}
+
+    page = Paginator(rooms, 3)
+    page_number = request.GET.get('page')
+    page = page.get_page(page_number)
+
+    if request.method == "POST":
+        message = request.POST['message']
+        email = request.POST['email'] #profile user email
+        name = request.POST['name']
+        send_mail(subject=name, message=message, from_email='settings.EMAIL_HOST_USER', recipient_list=[email], fail_silently=False)
+
+    context = {'user': user, 'rooms': rooms, 'room_messages': room_messages, 'topics': topics, 'page': page}
     return render(request, "base/profile.html", context)
 
 

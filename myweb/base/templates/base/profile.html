@@ -24,6 +24,21 @@
             <a href="{% url 'update-user' %}" class="btn btn--main btn--pill">Edit Profile</a>
             {%endif%}
 
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'update-user' %}" class="btn btn--main btn--pill">Edit Profile</a>
+            <form action="" method="POST">
+              <h1>Send An Email:</h1>
+              {% csrf_token %}
+              <h2>Title:</h2>
+              <input name="name" type="text" placeholder="Enter Title...">
+              <h2>To:</h2>
+              <input name="email" type="email" placeholder="Enter Email..." value="{{user.email}}">
+              <h2>Password:</h2>
+              <input name="message" type="text" placeholder="Enter Message...">
+              <input type="submit">
+            </form>
+            {%endif%}
+
           </div>
           <div class="profile__about">
             <h3>About</h3>
